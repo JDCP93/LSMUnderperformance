@@ -22,7 +22,7 @@ library(data.table)
 
 # Define fluxes, models, etc. etc.
 fluxes <- c("qh", "qle", "nee")
-variables <- c("lai","lwdown","precip","qair","swdown","tair","vpd","wind")
+variables <- c("lwdown","swdown","wind","vpd","precip", "lai","tair")
 models = c('1lin_raw','3km27_raw','6km729lag_raw','RF_raw','LSTM_raw','CABLE','CABLE-POP', 'CHTESSEL_1', 'CLM5', 'GFDL', 'JULES_GL9', 'JULES_GL9_LAI', 'MATSIRO','NoahMP','ORCHIDEE2','ORCHIDEE3') # complete list of models in Experiment
 benchmarks = c('1lin_raw','3km27_raw','LSTM_raw') # user-nominated benchmarks, as though in modelevaluation.org
 EFMs = c('1lin_raw','3km27_raw',"6km729lag_raw", "RF_raw","LSTM_raw")
@@ -33,7 +33,7 @@ nLSMs <- length(models) - nEFMs
 
 # Run it through for each flag combo and met variable you wish to plot on x-axis
 # This is in a for loop since it was ran locally on a computer with limited resources
-# Feel free to parrallelise if resources are available.
+# Feel free to parallelise if resources are available.
 for (DaytimeFlag in DaytimeFlags){
   for (PhysicalFlag in PhysicalFlags){
     for (WindyFlag in WindyFlags){
@@ -129,14 +129,14 @@ for (DaytimeFlag in DaytimeFlags){
           
             # Now we can plot
             # Let's make the outputs a bit nicer 
-            xLabels <- list(Var = c("<br>Downwelling<br>Longwave<br>(W/m<sup>2</sup>)",
-                                    "<br>Specific<br>Humidity<br>(kg/kg)", 
-                                    "<br>Downwelling <br>Shortwave<br>(W/m<sup>2</sup>)",
-                                    "<br>Air<br>Temperature<br>(&deg;C)",
-                                    "<br>Wind<br>Speed<br>(m/s)",
-                                    "<br>LAI<br>(m<sup>2</sup>/m<sup>2</sup>)", 
-                                    "<br>VPD<br>(kPa)",
-                                    "<br>Rainfall<br>(mm/s)"))
+            xLabels <- list(Var = c("<br>Downwelling Longwave (W/m<sup>2</sup>)",
+                                    "<br>Specific Humidity (kg/kg)", 
+                                    "<br>Downwelling Shortwave (W/m<sup>2</sup>)",
+                                    "<br>Air Temperature (&deg;C)",
+                                    "<br>Wind Speed (m/s)",
+                                    "<br>LAI (m<sup>2</sup>/m<sup>2</sup>)", 
+                                    "<br>VPD (kPa)",
+                                    "<br>Rainfall (mm/s)"))
             
             yLabels <- list(Var = c("Downwelling<br>Longwave<br>(W/m<sup>2</sup>)",
                                     "Specific<br>Humidity<br>(kg/kg)", 
@@ -195,7 +195,7 @@ for (DaytimeFlag in DaytimeFlags){
                 
                 plot <- ggplot(plotdata) +
                   geom_tile(aes(x = var1, y = var2, fill = Loss)) +
-                  scale_fill_binned_divergingx(name = paste0("LSM Losses for ",FluxTitle," in Bin (%)"),
+                  scale_fill_binned_divergingx(name = paste0("LSM Loss Ratio for ",FluxTitle," in Cell (%)"),
                                                palette = 'RdYlBu', 
                                                breaks = c(0, 5, 20, 30, 50, 80, 95, 100), 
                                                limits = c(0,100),
@@ -217,7 +217,7 @@ for (DaytimeFlag in DaytimeFlags){
                                    breaks = levels(Data[[var2]])[c(T, rep(F, 9))],
                                    drop = FALSE) +
                   theme_bw() +
-                  theme(text = element_text(size = 28),
+                  theme(text = element_text(size = 36),
                         axis.text.x = element_text(angle = 270, vjust = 0.2, hjust = 0),
                         legend.key.width = unit(10,"cm"),
                         legend.position = "bottom",
@@ -227,7 +227,7 @@ for (DaytimeFlag in DaytimeFlags){
                         axis.title.y=element_markdown(angle=0, vjust = 0.5),
                         axis.title.x = element_markdown())
                 
-                # If this is the first plot, we want the labels along the right
+                # If this is the first plot, we want the facet labels along the top
                 if(i == 1){
                   plot <- plot +
                     facet_wrap(Model ~ ., nrow = 1, strip.position = "top", labeller = label_parsed)
@@ -250,11 +250,11 @@ for (DaytimeFlag in DaytimeFlags){
                                                            y = c(0,1),
                                                            z = c(0,100))) +
                                            geom_tile(aes(x = x, y = y, fill = z)) +
-                                           scale_fill_continuous_sequential(name = "Timesteps in Bin (%)",
+                                           scale_fill_continuous_sequential(name = "Timesteps in Cell (%)",
                                                                             palette = 'YlGnBu',
                                                                             limits = c(0,8),
                                                                             transform = "sqrt") +
-                                           theme(text = element_text(size = 28), 
+                                           theme(text = element_text(size = 36), 
                                                  legend.key.width = unit(10,"cm"),
                                                  legend.position = "bottom",
                                                  legend.title.position = "bottom",
@@ -268,8 +268,7 @@ for (DaytimeFlag in DaytimeFlags){
                                                        plot3 + rremove("legend") + rremove("x.title") + rremove("x.text"), 
                                                        plot4 + rremove("legend") + rremove("x.title") + rremove("x.text"),
                                                        plot5 + rremove("legend") + rremove("x.title") + rremove("x.text"),
-                                                       plot6 + rremove("legend") + rremove("x.title") + rremove("x.text"),
-                                                       plot7 + rremove("legend")), ncol = 1, align = "hv")
+                                                       plot6 + rremove("legend")), ncol = 1, align = "hv")
               # Having removed the legends, we add one of each back in!
               arrangedPlot <- ggarrange(LSM_Loss_legend, arrangedPlot_nolegend, BinNo_legend, nrow = 3, heights = c(1, 12, 1))
               
